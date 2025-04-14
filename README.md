@@ -17,7 +17,7 @@ Dataset Cleaning: Includes scripts for preprocessing, handling missing values, a
 TODO: ADD simple description for each notebook
 
 
-Feature Engineering: Holds notebooks for transforming and generating meaningful features from the data.(Xu)
+Feature Engineering: Holds notebooks for transforming and generating meaningful features from the data.(Zhuoyue and Xu)
 
 
 TODO: ADD simple description for each notebook

@@ -260,33 +260,24 @@ For each model, we assessed performance across multiple forecasting horizons:
 
 Models were evaluated using multiple error metrics: Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and Mean Absolute Percentage Error (MAPE).
 
-To further analyze the accuracy of our forecasts, we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. Here's the Python code snippet we used to generate this plot:
+The results(mostly summarized as tables) are presented in tabular form in Sections 3.1 and 3.2, and were also thoroughly discussed during the presentation.
 
-```python
-interval_order = ['10min', '15min', '20min', '30min', '60min']
-plt.figure(figsize=(10, 6))
+<img src="images/Ride_Length_Distribution.png"/>
 
-for station, grp in metrics.groupby('station'):
-    grp = grp.set_index('interval').loc[interval_order].reset_index()
-    plt.plot(grp['interval'], grp['MAE'], marker='o', label=f'Station {station}')
+<img src="images/Median_Ride_Distribution_Daily.png"/>
+As shown on the above two images, most stations have fewer than 100 rides each day. The busiest stations only take up about 2% of all the stations. Also, The length of the rides is also shorter than we expected, that means the interval we previously chose for arima forcasting could be somewhat too long for bicycle rides. That is why we decided to use different time intervals to further optimize the accuracy of our forecasts. we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. 
 
-plt.xlabel('Interval')
-plt.ylabel('Mean Absolute Error (MAE)')
-plt.title('MAE vs. Forecast Interval for Top 10 Stations')
-plt.xticks(interval_order)
-plt.legend(title='Station', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
-```
+<p align="center">
+  <img src="images/MAE_10_stations_5_intervals.png" width="45%" />
+  <img src="images/MAE_10.png" width="45%" />
+</p>
+
 To ensure our analysis wasn't biased towards only the busiest stations, we also randomly selected 200 stations across the entire Citi Bike system. By comparing the forecasting performance across multiple intervals (10, 15, 20, 30, and 60 minutes) for this broader set of stations, we aimed to validate whether the pattern we observed in the busiest stations (10-minute forecasts performing best) remained consistent. The random selection helped us confirm that forecasting accuracy at the 10-minute interval consistently outperformed longer intervals even across diverse locations. This further reinforced our decision to use short-interval forecasting as the basis for our optimization models.
-import numpy as np
 
-```python
-# Randomly select 200 unique stations from the dataset
-rng = np.random.default_rng(seed=42)
-random_stations = rng.choice(pd.unique(rides[['start_id','end_id']].values.ravel()), 
-                             size=200, replace=False)
-```
+<p align="center">
+  <img src="images/200_stations.png" width="45%" />
+  <img src="images/percentage_10minbest.png" width="45%" />
+</p>
 
 While our ARIMA model delivered strong predictions at the 10-minute interval, in practice, operators typically plan rebalancing activities at an hourly scale. Initially, we considered whether forecasting directly at the hourly interval would be better. To address this, we investigated whether summing six consecutive 10-minute forecasts could yield accurate hourly forecasts. We found that this "bottom-up" aggregation approach was practical and reliable because bike net flow is additive—meaning the hourly net flow exactly equals the sum of the six 10-minute intervals within it. By leveraging this method, we gained the benefits of precise, short-term forecasting accuracy while still producing forecasts useful for practical, hourly planning by operators.
 
@@ -614,7 +605,8 @@ Our codebase is organized into three main sections, each responsible for a core 
 
 2. **Forecasting**  
    Implements and evaluates time series models (ARIMA, ARIMAX, SARIMA, SARIMAX).  
-   - **Arima_Xu.ipynb** – ???.  
+   - **Arima_Xu.ipynb** – Further exploration for dataset for Arima optimization approaches
+   - **ArimaWithDifferentIntervals.ipynb** – Implementation of different parameters for Arima optimization
    - **FeatureEngineeringFinal.ipynb** – Creates additional exogenous features for ARIMAX and SARIMAX models.  
    - **Demand Forecast with ARIMA.ipynb** – Compares models, performs evaluations, and saves forecast results to `citibike_station_demand_forecasts.csv`.
 

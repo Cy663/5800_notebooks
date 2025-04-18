@@ -114,6 +114,43 @@ For each model, we assessed performance across multiple forecasting horizons:
 
 Models were evaluated using multiple error metrics: Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and Mean Absolute Percentage Error (MAPE).
 
+To further analyze the accuracy of our forecasts, we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. Here's the Python code snippet we used to generate this plot:
+
+```python
+interval_order = ['10min', '15min', '20min', '30min', '60min']
+plt.figure(figsize=(10, 6))
+
+for station, grp in metrics.groupby('station'):
+    grp = grp.set_index('interval').loc[interval_order].reset_index()
+    plt.plot(grp['interval'], grp['MAE'], marker='o', label=f'Station {station}')
+
+plt.xlabel('Interval')
+plt.ylabel('Mean Absolute Error (MAE)')
+plt.title('MAE vs. Forecast Interval for Top 10 Stations')
+plt.xticks(interval_order)
+plt.legend(title='Station', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+```
+To ensure our analysis wasn't biased towards only the busiest stations, we also randomly selected 200 stations across the entire Citi Bike system. By comparing the forecasting performance across multiple intervals (10, 15, 20, 30, and 60 minutes) for this broader set of stations, we aimed to validate whether the pattern we observed in the busiest stations (10-minute forecasts performing best) remained consistent. The random selection helped us confirm that forecasting accuracy at the 10-minute interval consistently outperformed longer intervals even across diverse locations. This further reinforced our decision to use short-interval forecasting as the basis for our optimization models.
+import numpy as np
+
+```python
+# Randomly select 200 unique stations from the dataset
+rng = np.random.default_rng(seed=42)
+random_stations = rng.choice(pd.unique(rides[['start_id','end_id']].values.ravel()), 
+                             size=200, replace=False)
+```
+
+While our ARIMA model delivered strong predictions at the 10-minute interval, in practice, operators typically plan rebalancing activities at an hourly scale. Initially, we considered whether forecasting directly at the hourly interval would be better. To address this, we investigated whether summing six consecutive 10-minute forecasts could yield accurate hourly forecasts. We found that this "bottom-up" aggregation approach was practical and reliable because bike net flow is additive—meaning the hourly net flow exactly equals the sum of the six 10-minute intervals within it. By leveraging this method, we gained the benefits of precise, short-term forecasting accuracy while still producing forecasts useful for practical, hourly planning by operators.
+
+```python
+# Summing 10-minute interval predictions to hourly forecasts
+hourly_forecast = ten_min_forecast.resample('60min').sum()
+```
+
+During our analysis, we also considered using station capacity (the number of bike docks at each station) as an additional factor for improving our forecasts. The intuition was straightforward: larger stations might behave differently compared to smaller ones because they have more capacity to accommodate bikes. Although we didn't extensively test capacity as an exogenous variable due to project constraints, we outlined a clear methodology for incorporating it using an ARIMAX approach. Future research could test this approach to see if explicitly including capacity improves prediction accuracy, particularly at stations with frequent capacity constraints.
+
 #### Rebalancing Problem Formulation
 
 We formulated the bike rebalancing problem as a Capacitated Vehicle Routing Problem (CVRP), a variant of the Vehicle Routing Problem where vehicles have limited capacity constraints.
@@ -341,6 +378,8 @@ The combination of ARIMA forecasting with OR-Tools routing optimization provided
 **Tianze Yin**: This project significantly enhanced my understanding of combinatorial optimization problems and their real-world applications. Implementing three different approaches to solve the CVRP—from brute-force to advanced heuristics—taught me valuable lessons about algorithm design and trade-offs between optimality and computational efficiency. The most challenging aspect was scaling our solution to handle thousands of stations, which required me to explore specialized libraries like Google OR-Tools. This knowledge will be directly applicable to my future work in transportation planning and logistics optimization, where similar routing problems are common. The experience of translating a mathematical formulation into working code that can solve real-world problems has been incredibly rewarding.
 
 **Xu Tang**: Working on time series forecasting for this project has been an enlightening journey. I've deepened my understanding of ARIMA models and their variations, learning how to properly evaluate and compare different forecasting approaches. What surprised me most was that sometimes simpler models perform better than complex ones—a valuable lesson in avoiding unnecessary complexity. The skills I've gained in time series analysis will be directly applicable to my planned career in data science, where forecasting is a fundamental technique across multiple domains. This project also improved my data preprocessing abilities, as handling and cleaning the massive Citi Bike dataset required careful attention to detail and efficient coding practices.
+
+One of my main contributions was running comprehensive comparative analyses across multiple forecasting intervals and ensuring the accuracy of results by debugging and aligning the data preprocessing steps. At first, dealing with misalignment and unexpected results was frustrating. However, systematically troubleshooting and identifying the cause—a misalignment of forecast intervals—was a valuable learning experience. It significantly enhanced my ability to debug and improve analytical pipelines, skills which are extremely useful for any real-world data analysis tasks. I also gained practical experience in visualization techniques to effectively communicate our findings, which made our insights clearer and more impactful.
 
 **Zhuoyue Lian**: Through this project, I gained invaluable experience in handling large real-world datasets and the challenges they present. The data acquisition and cleaning phase taught me practical skills in dealing with inconsistencies, missing values, and merging multiple data sources. I learned that data preparation often constitutes the most time-consuming yet critical part of any analytical project. The visualization techniques I developed will be directly applicable to my future work in data analytics, where communicating complex patterns effectively is essential. This project reinforced my belief in the power of data-driven decision-making and inspired me to further explore how analytics can improve urban transportation systems.
 

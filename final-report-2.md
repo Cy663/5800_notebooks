@@ -262,25 +262,19 @@ Models were evaluated using multiple error metrics: Mean Absolute Error (MAE), R
 
 The results(mostly summarized as tables) are presented in tabular form in Sections 3.1 and 3.2, and were also thoroughly discussed during the presentation.
 
-<p align="center">
-  <img src="images/Ride_Length_Distribution.png" width="45%"/>
-  <img src="images/Median_Ride_Distribution_Daily.png" width="36%" height="250px"/>
-</p>
+<img src="images/Ride_Length_Distribution.png" height="400px" width="60%" />
+<img src="images/Median_Ride_Distribution_Daily.png" height="400px" width="50%"/>
 
 As shown on the above two images, most stations have fewer than 100 rides each day. The busiest stations only take up about 2% of all the stations. Also, The length of the rides is also shorter than we expected, that means the interval we previously chose for arima forcasting could be somewhat too long for bicycle rides. That is why we decided to use different time intervals to further optimize the accuracy of our forecasts. we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. 
 
-<p align="center">
-  <img src="images/MAE_10_stations_5_intervals.png" width="45%" />
-  <img src="images/MAE_10.png" width="45%" />
-</p>
+  <img src="images/MAE_10_stations_5_intervals.png" width=60%/>
+  <img src="images/MAE_10.png"  width=60%/>
 
 To ensure our analysis wasn't biased towards only the busiest stations, we also randomly selected 200 stations across the entire Citi Bike system. By comparing the forecasting performance across multiple intervals (10, 15, 20, 30, and 60 minutes) for this broader set of stations, we aimed to validate whether the pattern we observed in the busiest stations (10-minute forecasts performing best) remained consistent. The random selection helped us confirm that forecasting accuracy at the 10-minute interval consistently outperformed longer intervals even across diverse locations. This further reinforced our decision to use short-interval forecasting as the basis for our optimization models.
 
-<p align="center">
-  <img src="images/200_stations.png" width="45%" />
-  <img src="images/percentage_10minbest.png" width="45%" />
-</p>
-
+  <img src="images/200_stations.png"  width=60%/>
+  <img src="images/percentage_10minbest.png" width=60%/>
+  
 While our ARIMA model delivered strong predictions at the 10-minute interval, in practice, operators typically plan rebalancing activities at an hourly scale. Initially, we considered whether forecasting directly at the hourly interval would be better. To address this, we investigated whether summing six consecutive 10-minute forecasts could yield accurate hourly forecasts. We found that this "bottom-up" aggregation approach was practical and reliable because bike net flow is additive—meaning the hourly net flow exactly equals the sum of the six 10-minute intervals within it. By leveraging this method, we gained the benefits of precise, short-term forecasting accuracy while still producing forecasts useful for practical, hourly planning by operators.
 
 ```python

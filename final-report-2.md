@@ -262,9 +262,11 @@ Models were evaluated using multiple error metrics: Mean Absolute Error (MAE), R
 
 The results(mostly summarized as tables) are presented in tabular form in Sections 3.1 and 3.2, and were also thoroughly discussed during the presentation.
 
-<img src="images/Ride_Length_Distribution.png"/>
+<p align="center">
+  <img src="images/Ride_Length_Distribution.png" width="45%"/>
+  <img src="images/Median_Ride_Distribution_Daily.png" width="36%" height="250px"/>
+</p>
 
-<img src="images/Median_Ride_Distribution_Daily.png"/>
 As shown on the above two images, most stations have fewer than 100 rides each day. The busiest stations only take up about 2% of all the stations. Also, The length of the rides is also shorter than we expected, that means the interval we previously chose for arima forcasting could be somewhat too long for bicycle rides. That is why we decided to use different time intervals to further optimize the accuracy of our forecasts. we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. 
 
 <p align="center">
@@ -587,7 +589,9 @@ To further extend this work:
 
 5. **System Design Recommendations**: Use the accumulated data and insights to provide recommendations for optimal station sizing and placement in future system expansions.
 
-#### 4.4 Individual Learning Reflections
+6. **Map-Based Interface Illustration**:  
+Implement an interactive map-based interface to visualize real-time truck routes along with the number of bicycles assigned to each truck. Use distinct symbols or color codes to represent the status of bike stations (e.g., surplus, shortage, or balanced). The interface should allow users to dynamically adjust the number of active trucks, with updated routing solutions displayed accordingly.
+
 
 **Tianze Yin**: This project significantly enhanced my understanding of combinatorial optimization problems and their real-world applications. Implementing three different approaches to solve the CVRP—from brute-force to advanced heuristics—taught me valuable lessons about algorithm design and trade-offs between optimality and computational efficiency. The most challenging aspect was scaling our solution to handle thousands of stations, which required me to explore specialized libraries like Google OR-Tools. This knowledge will be directly applicable to my future work in transportation planning and logistics optimization, where similar routing problems are common. The experience of translating a mathematical formulation into working code that can solve real-world problems has been incredibly rewarding.
 

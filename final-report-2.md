@@ -260,21 +260,21 @@ For each model, we assessed performance across multiple forecasting horizons:
 
 Models were evaluated using multiple error metrics: Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and Mean Absolute Percentage Error (MAPE).
 
-The results(mostly summarized as tables) are presented in tabular form in Sections 3.1 and 3.2, and were also thoroughly discussed during the presentation.
+The results (mostly summarized as tables) are presented in tabular form in Sections 3.1 and 3.2, and were also thoroughly discussed during the presentation.
 
 <img src="images/Ride_Length_Distribution.png" height="400px" width="60%" />
 <img src="images/Median_Ride_Distribution_Daily.png" height="400px" width="50%"/>
 
 As shown on the above two images, most stations have fewer than 100 rides each day. The busiest stations only take up about 2% of all the stations. Also, The length of the rides is also shorter than we expected, that means the interval we previously chose for arima forcasting could be somewhat too long for bicycle rides. That is why we decided to use different time intervals to further optimize the accuracy of our forecasts. we selected the ten busiest stations in the Citi Bike system—stations with the highest total number of trips (both bikes arriving and leaving). We then compared forecasting accuracy using different time intervals: 10, 15, 20, 30, and 60 minutes. Interestingly, the forecasts using 10-minute intervals consistently showed the lowest Mean Absolute Error (MAE). Initially, this result was surprising, as we expected longer intervals (like hourly) to produce more stable predictions. To visualize this clearly, we plotted MAE against forecasting intervals for each station (see Figure 1). The graph clearly shows that for these top stations, forecasting at a more granular level (every 10 minutes) gives better predictions. This finding is significant because it indicates that even though shorter intervals might seem more challenging to forecast due to higher noise, the ARIMA model captures short-term fluctuations very effectively. 
 
-  <img src="images/MAE_10_stations_5_intervals.png" width=60%/>
-  <img src="images/MAE_10.png"  width=60%/>
+  <img src="images/MAE_10_stations_5_intervals.png" height="40%" width=60%/>
+  <img src="images/MAE_10.png"  height="200px" height="50%" width=60%/>
 
 To ensure our analysis wasn't biased towards only the busiest stations, we also randomly selected 200 stations across the entire Citi Bike system. By comparing the forecasting performance across multiple intervals (10, 15, 20, 30, and 60 minutes) for this broader set of stations, we aimed to validate whether the pattern we observed in the busiest stations (10-minute forecasts performing best) remained consistent. The random selection helped us confirm that forecasting accuracy at the 10-minute interval consistently outperformed longer intervals even across diverse locations. This further reinforced our decision to use short-interval forecasting as the basis for our optimization models.
 
-  <img src="images/200_stations.png"  width=60%/>
-  <img src="images/percentage_10minbest.png" width=60%/>
-  
+<img src="images/200_stations.png"  height="300px" width=60%/>
+<img src="images/percentage_10minbest.png" height="400px" width=60%/>
+
 While our ARIMA model delivered strong predictions at the 10-minute interval, in practice, operators typically plan rebalancing activities at an hourly scale. Initially, we considered whether forecasting directly at the hourly interval would be better. To address this, we investigated whether summing six consecutive 10-minute forecasts could yield accurate hourly forecasts. We found that this "bottom-up" aggregation approach was practical and reliable because bike net flow is additive—meaning the hourly net flow exactly equals the sum of the six 10-minute intervals within it. By leveraging this method, we gained the benefits of precise, short-term forecasting accuracy while still producing forecasts useful for practical, hourly planning by operators.
 
 ```python
@@ -397,7 +397,7 @@ We assume a **truck capacity of 30 bikes** for all routing optimizations.
 
 **1. Brute-Force Optimization (10 stations)**
 
-Given the NP-harm nature of CVRP, We applied brute force optimization to a subset of the 10 most imbalanced stations. Given 4 available trucks and each with a 30-bike capacity, we evaluated all possible partitions of these stations and searched for route combinations that minimized total distance while satisfying demand constraints.
+Given the NP-hard nature of CVRP, We applied brute force optimization to a subset of the 10 most imbalanced stations. Given 4 available trucks, each with a capacity of 30 bikes, we evaluated all possible partitions of these stations and searched for route combinations that minimized total distance while satisfying demand constraints.
 
 Our brute-force algorithm evaluated 4,549 feasible partitions and found an optimal solution with a total distance of 38.70 km across 4 trucks. The algorithm assigned stations efficiently to each truck while respecting capacity constraints:
 
